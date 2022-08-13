@@ -1,13 +1,14 @@
 {
     "version": "0.2.0",
     "configurations": [
+        
 
         {
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
             // Resolved by CMake Tools:
-            "program": "${workspaceFolder}/Builds/LinuxMakeFile/build/Distort",
+            "program": "${command:cmake.launchTargetPath}",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -16,11 +17,7 @@
                     // add the directory where our target was built to the PATHs
                     // it gets resolved by CMake Tools:
                     "name": "PATH",
-                    "value": "$PATH:${workspaceFolder}/Builds/LinuxMakeFile/build"
-                },
-                {
-                    "name": "OTHER_VALUE",
-                    "value": "Something something"
+                    "value": "$PATH:${command:cmake.launchTargetDirectory}"
                 }
             ],
             "externalConsole": true,

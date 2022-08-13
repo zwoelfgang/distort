@@ -22,7 +22,7 @@ DistortAudioProcessor::DistortAudioProcessor()
                        )
 #endif
 {
-//    state = new juce::AudioProcessorValueTreeState(*this, nullptr)
+    state = std::make_unique<juce::AudioProcessorValueTreeState>(*this, nullptr);
 }
 
 DistortAudioProcessor::~DistortAudioProcessor()
