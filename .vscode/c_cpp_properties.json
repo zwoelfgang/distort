@@ -4,7 +4,6 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/wolf/vst/distort/JuceLibraryCode/**",
                 "/home/wolf/JUCE/modules/**"
             ],
             "defines": [],
