@@ -24,9 +24,9 @@ DistortAudioProcessor::DistortAudioProcessor()
 {
     state = std::make_unique<juce::AudioProcessorValueTreeState>(*this, nullptr);
 
-    state->createAndAddParameter("drive", "Drive", "Drive", juce::NormalisableRange<float>(0.1f, 1.f, 0.001f), 0.5f, nullptr, nullptr);
-    state->createAndAddParameter("pre volume", "Pre Volume", "Pre Volume", juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f), 0.8f, nullptr, nullptr);
-    state->createAndAddParameter("post volume", "Post Volume", "Post Volume", juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f), 0.8f, nullptr, nullptr);
+    state->createAndAddParameter("drive", "Drive", "Drive", juce::NormalisableRange<float>(0.1f, 1.f, 0.0001f), 1.f, nullptr, nullptr);
+    state->createAndAddParameter("pre volume", "Pre Volume", "Pre Volume", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f), 0.8f, nullptr, nullptr);
+    state->createAndAddParameter("post volume", "Post Volume", "Post Volume", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f), 0.8f, nullptr, nullptr);
     state->createAndAddParameter("low cut", "Low Cut", "Low Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f), 20.f, nullptr, nullptr);
     state->createAndAddParameter("high cut", "High Cut", "High Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f), 20000.f, nullptr, nullptr);
 
@@ -114,12 +114,13 @@ void DistortAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.numChannels = 1;
     spec.sampleRate = sampleRate;
 
-    cutChain.prepare(spec);
+    leftChain.prepare(spec);
+    rightChain.prepare(spec);
 
     auto chainSettings = getChainSettings(*state);
     auto cutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, sampleRate, 4);
 
-    auto& pLowCut = cutChain.get<ChainPositions::LowCut>();
+    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
 
 }
 
@@ -172,17 +173,14 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 
     juce::dsp::AudioBlock<float> block(buffer);
 
-    auto cutBlock = block.getSingleChannelBlock(0);
+    auto leftBlock = block.getSingleChannelBlock(0);
+    auto rightBlock = block.getSingleChannelBlock(1);
 
-    juce::dsp::ProcessContextReplacing<float> cutContext(cutBlock);
+    juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
+    juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
 
-    cutChain.process(cutContext);
-
-    auto chainSettings = getChainSettings(*state);
-    auto cutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, getSampleRate(), 4);
-
-    auto& pLowCut = cutChain.get<ChainPositions::LowCut>();
-    auto& phighCut = cutChain.get<ChainPositions::HighCut>();
+    leftChain.process(leftContext);
+    rightChain.process(rightContext);
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -193,8 +191,8 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     float drive = *state->getRawParameterValue("drive");
     float preVol = *state->getRawParameterValue("pre volume");
     float postVol = *state->getRawParameterValue("post volume");
-//    float lCut = *state->getRawParameterValue("low cut");
-//    float hCut = *state->getRawParameterValue("high cut");
+    float lCut = *state->getRawParameterValue("low cut");
+    float hCut = *state->getRawParameterValue("high cut");
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -205,9 +203,9 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         {
             *channelData *= (preVol * drive);
 
-            *channelData = ((2.f / juce::float_Pi) * atan(*channelData));
-            
-            *channelData *= postVol;
+            *channelData =  ((2.f / juce::float_Pi) * atan(*channelData));
+                
+//            *channelData *= postVol;
 
             channelData++;
         }
