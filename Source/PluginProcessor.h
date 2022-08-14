@@ -70,9 +70,8 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState> state;
 
     using Filter = juce::dsp::IIR::Filter<float>;
-    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter>;
-    using MonoChain = juce::dsp::ProcessorChain<CutFilter, CutFilter>;
-    MonoChain leftChain, rightChain;
+    using MonoChain = juce::dsp::ProcessorChain<Filter, Filter>;
+    MonoChain cutChain;
 
     enum ChainPositions
     {

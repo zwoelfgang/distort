@@ -33,8 +33,8 @@ DistortAudioProcessor::DistortAudioProcessor()
     state->state = juce::ValueTree("drive");
     state->state = juce::ValueTree("pre volume");
     state->state = juce::ValueTree("post volume");
-    state->state = juce::ValueTree("low cut");
-    state->state = juce::ValueTree("high cut");
+//    state->state = juce::ValueTree("low cut");
+//    state->state = juce::ValueTree("high cut");
 }
 
 DistortAudioProcessor::~DistortAudioProcessor()
@@ -114,14 +114,12 @@ void DistortAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.numChannels = 1;
     spec.sampleRate = sampleRate;
 
-    leftChain.prepare(spec);
-    rightChain.prepare(spec);
+    cutChain.prepare(spec);
 
     auto chainSettings = getChainSettings(*state);
     auto cutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, sampleRate, 4);
 
-    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
-    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
+    auto& pLowCut = cutChain.get<ChainPositions::LowCut>();
 
 }
 
@@ -174,20 +172,17 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 
     juce::dsp::AudioBlock<float> block(buffer);
 
-    auto leftBlock = block.getSingleChannelBlock(0);
-    auto rightBlock = block.getSingleChannelBlock(1);
+    auto cutBlock = block.getSingleChannelBlock(0);
 
-    juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
-    juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
+    juce::dsp::ProcessContextReplacing<float> cutContext(cutBlock);
 
-    leftChain.process(leftContext);
-    rightChain.process(rightContext);
+    cutChain.process(cutContext);
 
     auto chainSettings = getChainSettings(*state);
     auto cutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, getSampleRate(), 4);
 
-    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
-    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
+    auto& pLowCut = cutChain.get<ChainPositions::LowCut>();
+    auto& phighCut = cutChain.get<ChainPositions::HighCut>();
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
