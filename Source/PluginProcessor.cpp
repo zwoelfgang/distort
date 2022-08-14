@@ -24,17 +24,17 @@ DistortAudioProcessor::DistortAudioProcessor()
 {
     state = std::make_unique<juce::AudioProcessorValueTreeState>(*this, nullptr);
 
-    state->createAndAddParameter("drive", "Drive", "Drive", juce::NormalisableRange<float>(0.1f, 1.f, 0.0001f), 1.f, nullptr, nullptr);
-    state->createAndAddParameter("pre volume", "Pre Volume", "Pre Volume", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f), 0.8f, nullptr, nullptr);
-    state->createAndAddParameter("post volume", "Post Volume", "Post Volume", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f), 0.8f, nullptr, nullptr);
+    state->createAndAddParameter("drive", "Drive", "Drive", juce::NormalisableRange<float>(0.1f, 1.f, 0.001f), 0.5f, nullptr, nullptr);
+    state->createAndAddParameter("pre volume", "Pre Volume", "Pre Volume", juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f), 0.8f, nullptr, nullptr);
+    state->createAndAddParameter("post volume", "Post Volume", "Post Volume", juce::NormalisableRange<float>(0.0f, 1.0f, 0.001f), 0.8f, nullptr, nullptr);
     state->createAndAddParameter("low cut", "Low Cut", "Low Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f), 20.f, nullptr, nullptr);
     state->createAndAddParameter("high cut", "High Cut", "High Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f), 20000.f, nullptr, nullptr);
 
     state->state = juce::ValueTree("drive");
     state->state = juce::ValueTree("pre volume");
     state->state = juce::ValueTree("post volume");
-//    state->state = juce::ValueTree("low cut");
-//    state->state = juce::ValueTree("high cut");
+    state->state = juce::ValueTree("low cut");
+    state->state = juce::ValueTree("high cut");
 }
 
 DistortAudioProcessor::~DistortAudioProcessor()
@@ -203,10 +203,10 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         // ..do something to the data...
         for (int sample = 0; sample < buffer.getNumSamples(); sample++)
         {
-            *channelData *= preVol;
+            *channelData *= (preVol * drive);
 
-            *channelData =  ((2.f / juce::float_Pi) * atan(*channelData * drive));
-                
+            *channelData = ((2.f / juce::float_Pi) * atan(*channelData));
+            
             *channelData *= postVol;
 
             channelData++;
