@@ -23,6 +23,18 @@ DistortAudioProcessor::DistortAudioProcessor()
 #endif
 {
     state = std::make_unique<juce::AudioProcessorValueTreeState>(*this, nullptr);
+
+    state->createAndAddParameter("drive", "Drive", "Drive", juce::NormalisableRange<float>(0.1f, 1.f, 0.0001f), 1.f, nullptr, nullptr);
+    state->createAndAddParameter("pre volume", "Pre Volume", "Pre Volume", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f), 0.8f, nullptr, nullptr);
+    state->createAndAddParameter("post volume", "Post Volume", "Post Volume", juce::NormalisableRange<float>(0.0f, 1.0f, 0.0001f), 0.8f, nullptr, nullptr);
+    state->createAndAddParameter("low cut", "Low Cut", "Low Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f), 20.f, nullptr, nullptr);
+    state->createAndAddParameter("high cut", "High Cut", "High Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f), 20000.f, nullptr, nullptr);
+
+    state->state = juce::ValueTree("drive");
+    state->state = juce::ValueTree("pre volume");
+    state->state = juce::ValueTree("post volume");
+    state->state = juce::ValueTree("low cut");
+    state->state = juce::ValueTree("high cut");
 }
 
 DistortAudioProcessor::~DistortAudioProcessor()
@@ -96,6 +108,21 @@ void DistortAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    juce::dsp::ProcessSpec spec;
+
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = 1;
+    spec.sampleRate = sampleRate;
+
+    leftChain.prepare(spec);
+    rightChain.prepare(spec);
+
+    auto chainSettings = getChainSettings(*state);
+    auto cutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, sampleRate, 4);
+
+    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
+    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
+
 }
 
 void DistortAudioProcessor::releaseResources()
@@ -145,17 +172,50 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    juce::dsp::AudioBlock<float> block(buffer);
+
+    auto leftBlock = block.getSingleChannelBlock(0);
+    auto rightBlock = block.getSingleChannelBlock(1);
+
+    juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
+    juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
+
+    leftChain.process(leftContext);
+    rightChain.process(rightContext);
+
+    auto chainSettings = getChainSettings(*state);
+    auto cutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, getSampleRate(), 4);
+
+    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
+    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
+
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
     // Make sure to reset the state if your inner loop is processing
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
+    float drive = *state->getRawParameterValue("drive");
+    float preVol = *state->getRawParameterValue("pre volume");
+    float postVol = *state->getRawParameterValue("post volume");
+//    float lCut = *state->getRawParameterValue("low cut");
+//    float hCut = *state->getRawParameterValue("high cut");
+
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         auto* channelData = buffer.getWritePointer (channel);
 
         // ..do something to the data...
+        for (int sample = 0; sample < buffer.getNumSamples(); sample++)
+        {
+            *channelData *= preVol;
+
+            *channelData =  ((2.f / juce::float_Pi) * atan(*channelData * drive));
+                
+            *channelData *= postVol;
+
+            channelData++;
+        }
     }
 }
 
@@ -181,12 +241,30 @@ void DistortAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    juce::MemoryOutputStream stream(destData, false);
+    state->state.writeToStream(stream);
 }
 
 void DistortAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    juce::ValueTree tree = juce::ValueTree::readFromData(data, sizeInBytes);
+
+    if (tree.isValid())
+    {
+        state->state = tree;
+    }
+}
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& state)
+{
+    ChainSettings settings;
+
+    settings.lowCut = state.getRawParameterValue("low cut")->load();
+    settings.highCut = state.getRawParameterValue("high cut")->load();
+
+    return settings;
 }
 
 //==============================================================================

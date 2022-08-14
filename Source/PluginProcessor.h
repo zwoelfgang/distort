@@ -10,6 +10,14 @@
 
 #include <JuceHeader.h>
 
+struct ChainSettings
+{
+    float lowCut { 0 };
+    float highCut { 0 };
+};
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& state);
+
 //==============================================================================
 /**
 */
@@ -60,6 +68,17 @@ public:
 
 private:
     std::unique_ptr<juce::AudioProcessorValueTreeState> state;
+
+    using Filter = juce::dsp::IIR::Filter<float>;
+    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter>;
+    using MonoChain = juce::dsp::ProcessorChain<CutFilter, CutFilter>;
+    MonoChain leftChain, rightChain;
+
+    enum ChainPositions
+    {
+        LowCut,
+        HighCut,
+    };
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DistortAudioProcessor)

@@ -57,20 +57,31 @@ DistortAudioProcessorEditor::~DistortAudioProcessorEditor()
 void DistortAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll (juce::Colours::antiquewhite);
+    g.setColour(juce::Colours::black);
 
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    driveKnob.setColour(0xff000000, juce::Colours::black);
+    preVolumeKnob.setColour(0xff000000, juce::Colours::black);
+    postVolumeKnob.setColour(0xff000000, juce::Colours::black);
+    lowCut.setColour(0xff000000, juce::Colours::black);
+    highCut.setColour(0xff000000, juce::Colours::black);
+
+    g.setFont(juce::Font(juce::Font::getDefaultMonospacedFontName(), 20.0f, juce::Font::bold));
+    g.drawText("Drive", ((getWidth() / 2) - 200 / 2), ((getHeight() / 2) - 100 / 2), 200, 200, juce::Justification::centred);
+    g.drawText("Pre Volume", ((getWidth() / 2) - 550 / 2), ((getHeight() / 2) - 370 / 2), 150, 100, juce::Justification::centred);
+    g.drawText("Post Volume", ((getWidth() / 2) + 250 / 2), ((getHeight() / 2) - 370 / 2), 150, 100, juce::Justification::centred);
+    g.drawText("Low Cut", ((getWidth() / 2) - 350 / 2), ((getHeight() / 2) + 170 / 2), 100, 100, juce::Justification::centred);
+    g.drawText("High Cut", ((getWidth() / 2) + 150 / 2), ((getHeight() / 2) + 170 / 2), 100, 100, juce::Justification::centred);
+
 }
 
 void DistortAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    driveKnob.setBounds(((getWidth() / 2) - 150 / 2), ((getHeight() / 2) - 50 / 2), 150, 150);
-    preVolumeKnob.setBounds(((getWidth() / 4) - 100 / 2), ((getHeight() / 2) - 50 / 2), 20, 250);
-    postVolumeKnob.setBounds(((getWidth() / 4) + 100 / 2), ((getHeight() / 2) - 50 / 2), 20, 250);
-    highCut.setBounds(((getWidth() / 4) - 100 / 2), ((getHeight() / 2) - 50 / 2), 75, 75);
-    lowCut.setBounds(((getWidth() / 4) + 100 / 2), ((getHeight() / 2) - 50 / 2), 75, 75);
+    driveKnob.setBounds(((getWidth() / 2) - 150 / 2), ((getHeight() / 2) - 200 / 2), 150, 150);
+    preVolumeKnob.setBounds(((getWidth() / 2) - 420 / 2), ((getHeight() / 2) - 250 / 2), 20, 250);
+    postVolumeKnob.setBounds(((getWidth() / 2) + 380 / 2), ((getHeight() / 2) - 250 / 2), 20, 250);
+    lowCut.setBounds(((getWidth() / 2) - 330 / 2), ((getHeight() / 2) + 100 / 2), 80, 80);
+    highCut.setBounds(((getWidth() / 2) + 170 / 2), ((getHeight() / 2) + 100 / 2), 80, 80);
 }
