@@ -29,12 +29,14 @@ DistortAudioProcessor::DistortAudioProcessor()
     state->createAndAddParameter("post volume", "Post Volume", "Post Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f, nullptr, nullptr);
     state->createAndAddParameter("low cut", "Low Cut", "Low Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f), 20.f, nullptr, nullptr);
     state->createAndAddParameter("high cut", "High Cut", "High Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f), 20000.f, nullptr, nullptr);
+    state->createAndAddParameter("character", "Character", "Character", juce::NormalisableRange<float>(1.f, 6.f, 0.5f), 2.5f, nullptr, nullptr);
 
     state->state = juce::ValueTree("drive");
     state->state = juce::ValueTree("pre volume");
     state->state = juce::ValueTree("post volume");
     state->state = juce::ValueTree("low cut");
     state->state = juce::ValueTree("high cut");
+    state->state = juce::ValueTree("charater");
 }
 
 DistortAudioProcessor::~DistortAudioProcessor()
@@ -193,6 +195,7 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     float postVol = *state->getRawParameterValue("post volume");
     float lCut = *state->getRawParameterValue("low cut");
     float hCut = *state->getRawParameterValue("high cut");
+    float character = *state->getRawParameterValue("character");
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -203,7 +206,7 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         {
             *channelData *= preVol;
 
-            *channelData =  ((*channelData * drive) / pow((1 + pow(abs(*channelData * drive), 2.5)), 1 / 2.5));
+            *channelData =  ((*channelData * drive) / pow((1 + pow(abs(*channelData * drive), character)), 1 / character));
                 
             *channelData *= postVol;
 
