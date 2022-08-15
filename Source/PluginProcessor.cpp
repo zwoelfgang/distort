@@ -186,7 +186,7 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     auto chainSettings = getChainSettings(*state);
 
     auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, getSampleRate(), 4);
-    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.highCut, getSampleRate(), 4);
+    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCut, getSampleRate(), 4);
 
     auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
     auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
