@@ -36,7 +36,7 @@ DistortAudioProcessor::DistortAudioProcessor()
     state->state = juce::ValueTree("post volume");
     state->state = juce::ValueTree("low cut");
     state->state = juce::ValueTree("high cut");
-    state->state = juce::ValueTree("charater");
+    state->state = juce::ValueTree("character");
 }
 
 DistortAudioProcessor::~DistortAudioProcessor()
