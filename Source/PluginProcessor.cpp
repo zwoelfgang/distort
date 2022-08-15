@@ -120,10 +120,20 @@ void DistortAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     rightChain.prepare(spec);
 
     auto chainSettings = getChainSettings(*state);
-    auto cutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, sampleRate, 4);
+    auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, sampleRate, 4);
+    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.highCut, sampleRate, 4);
 
     auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
+    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
 
+    leftLowCut.get<0>().coefficients = lowCutCoefficients[0];
+    rightLowCut.get<0>().coefficients = lowCutCoefficients[0];
+
+    auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();
+    auto& rightHighCut = rightChain.get<ChainPositions::HighCut>();
+
+    leftHighCut.get<0>().coefficients = highCutCoefficients[0];
+    rightHighCut.get<0>().coefficients = highCutCoefficients[0];
 }
 
 void DistortAudioProcessor::releaseResources()
@@ -172,6 +182,23 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+
+    auto chainSettings = getChainSettings(*state);
+
+    auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, getSampleRate(), 4);
+    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.highCut, getSampleRate(), 4);
+
+    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
+    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
+
+    leftLowCut.get<0>().coefficients = lowCutCoefficients[0];
+    rightLowCut.get<0>().coefficients = lowCutCoefficients[0];
+
+    auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();
+    auto& rightHighCut = rightChain.get<ChainPositions::HighCut>();
+
+    leftHighCut.get<0>().coefficients = highCutCoefficients[0];
+    rightHighCut.get<0>().coefficients = highCutCoefficients[0];
 
     juce::dsp::AudioBlock<float> block(buffer);
 
