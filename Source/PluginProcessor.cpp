@@ -203,7 +203,7 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         {
             *channelData *= preVol;
 
-            *channelData =  ((2.f / juce::float_Pi) * tanh(*channelData * drive));
+            *channelData =  ((*channelData * drive) / pow((1 + pow(abs(*channelData * drive), 2.5)), 1 / 2.5));
                 
             *channelData *= postVol;
 
