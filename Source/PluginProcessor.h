@@ -64,11 +64,10 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    juce::AudioProcessorValueTreeState& getState();
-
-private:
+//    juce::AudioProcessorValueTreeState& getState();
     std::unique_ptr<juce::AudioProcessorValueTreeState> state;
 
+private:
     using Filter = juce::dsp::IIR::Filter<float>;
     using CutFilter = juce::dsp::ProcessorChain<Filter, Filter>;
     using MonoChain = juce::dsp::ProcessorChain<CutFilter, CutFilter>;

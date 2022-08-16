@@ -240,10 +240,10 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     }
 }
 
-juce::AudioProcessorValueTreeState& DistortAudioProcessor::getState()
-{
-    return *state;
-}
+//juce::AudioProcessorValueTreeState& DistortAudioProcessor::getState()
+//{
+//    return *state;
+//}
 
 //==============================================================================
 bool DistortAudioProcessor::hasEditor() const
