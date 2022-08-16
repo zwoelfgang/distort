@@ -31,12 +31,12 @@ DistortAudioProcessor::DistortAudioProcessor()
     state->createAndAddParameter("high cut", "High Cut", "High Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20000.f, nullptr, nullptr);
     state->createAndAddParameter("character", "Character", "Character", juce::NormalisableRange<float>(1.f, 6.f, 0.5f), 2.5f, nullptr, nullptr);
 
-    state->state = juce::ValueTree("drive");
-    state->state = juce::ValueTree("pre volume");
-    state->state = juce::ValueTree("post volume");
-    state->state = juce::ValueTree("low cut");
-    state->state = juce::ValueTree("high cut");
-    state->state = juce::ValueTree("character");
+//    state->state = juce::ValueTree("drive");
+//    state->state = juce::ValueTree("pre volume");
+//    state->state = juce::ValueTree("post volume");
+//    state->state = juce::ValueTree("low cut");
+//    state->state = juce::ValueTree("high cut");
+//    state->state = juce::ValueTree("character");
 }
 
 DistortAudioProcessor::~DistortAudioProcessor()
