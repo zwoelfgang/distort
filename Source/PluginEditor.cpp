@@ -45,12 +45,12 @@ DistortAudioProcessorEditor::DistortAudioProcessorEditor (DistortAudioProcessor&
     character.setTextBoxStyle(juce::Slider::NoTextBox, false, 100, 100);
     addAndMakeVisible(&character);
 
-    driveAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "drive", driveKnob);
-    preVolumeAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "pre volume", preVolumeKnob);
-    postVolumeAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "post volume", postVolumeKnob);
-    lowCutAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "low cut", lowCut);
-    highCutAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "high cut", highCut);
-    characterAttachment = new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "character", character);
+    driveAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "drive", driveKnob));
+    preVolumeAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "pre volume", preVolumeKnob));
+    postVolumeAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "post volume", postVolumeKnob));
+    lowCutAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "low cut", lowCut));
+    highCutAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "high cut", highCut));
+    characterAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "character", character));
 
     setSize (600, 400);
 }

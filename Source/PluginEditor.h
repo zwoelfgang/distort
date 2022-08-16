@@ -32,12 +32,12 @@ private:
     juce::Slider highCut;
     juce::Slider character;
 
-    juce::AudioProcessorValueTreeState::SliderAttachment driveAttachment;
-    juce::AudioProcessorValueTreeState::SliderAttachment preVolumeAttachment;
-    juce::AudioProcessorValueTreeState::SliderAttachment postVolumeAttachment;
-    juce::AudioProcessorValueTreeState::SliderAttachment lowCutAttachment;
-    juce::AudioProcessorValueTreeState::SliderAttachment highCutAttachment;
-    juce::AudioProcessorValueTreeState::SliderAttachment characterAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> preVolumeAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> postVolumeAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowCutAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highCutAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> characterAttachment;
 
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
