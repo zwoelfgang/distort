@@ -24,12 +24,14 @@ DistortAudioProcessor::DistortAudioProcessor()
 {
     state = std::make_unique<juce::AudioProcessorValueTreeState>(*this, nullptr);
 
-    state->createAndAddParameter("drive", "Drive", "Drive", juce::NormalisableRange<float>(1.f, 24.f, 0.001f), 1.f, nullptr, nullptr);
-    state->createAndAddParameter("pre volume", "Pre Volume", "Pre Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f, nullptr, nullptr);
-    state->createAndAddParameter("post volume", "Post Volume", "Post Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f, nullptr, nullptr);
-    state->createAndAddParameter("low cut", "Low Cut", "Low Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20.f, nullptr, nullptr);
-    state->createAndAddParameter("high cut", "High Cut", "High Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20000.f, nullptr, nullptr);
-    state->createAndAddParameter("character", "Character", "Character", juce::NormalisableRange<float>(1.f, 6.f, 0.5f), 2.5f, nullptr, nullptr);
+    using Parameter = juce::AudioProcessorValueTreeState::Parameter;
+
+    state->createAndAddParameter(std::make_unique<Parameter>("drive", "Drive", "Drive", juce::NormalisableRange<float>(1.f, 24.f, 0.001f), 1.f, nullptr, nullptr));
+    state->createAndAddParameter(std::make_unique<Parameter>("pre volume", "Pre Volume", "Pre Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f, nullptr, nullptr));
+    state->createAndAddParameter(std::make_unique<Parameter>("post volume", "Post Volume", "Post Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f, nullptr, nullptr));
+    state->createAndAddParameter(std::make_unique<Parameter>("low cut", "Low Cut", "Low Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20.f, nullptr, nullptr));
+    state->createAndAddParameter(std::make_unique<Parameter>("high cut", "High Cut", "High Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20000.f, nullptr, nullptr));
+    state->createAndAddParameter(std::make_unique<Parameter>("character", "Character", "Character", juce::NormalisableRange<float>(1.f, 6.f, 0.5f), 2.5f, nullptr, nullptr));
 
 //    state->state = juce::ValueTree("drive");
 //    state->state = juce::ValueTree("pre volume");
@@ -121,7 +123,7 @@ void DistortAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 
     auto chainSettings = getChainSettings(*state);
     auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, sampleRate, 4);
-    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.highCut, sampleRate, 4);
+    auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCut, sampleRate, 4);
 
     auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
     auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
