@@ -10,35 +10,30 @@
 #include "PluginEditor.h"
 
 //==============================================================================
+
+
+
 DistortAudioProcessor::DistortAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
+      : AudioProcessor (BusesProperties()
+                      #if ! JucePlugin_IsMidiEffect
+                       #if ! JucePlugin_IsSynth
+                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
+                       #endif
+                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                       #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+                        ),
 #endif
+state (*this, nullptr, "PARAMETERS",
+              { 
+                std::make_unique<juce::AudioParameterFloat> ("drive", "Drive", juce::NormalisableRange<float>(1.f, 24.f, 0.001f), 1.f),
+                std::make_unique<juce::AudioParameterFloat> ("pre volume", "Pre Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f),
+                std::make_unique<juce::AudioParameterFloat> ("post volume", "Post Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f),
+                std::make_unique<juce::AudioParameterFloat> ("low cut", "Low Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20.f),
+                std::make_unique<juce::AudioParameterFloat> ("high cut", "High Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20000.f),
+                std::make_unique<juce::AudioParameterFloat> ("character", "Character", juce::NormalisableRange<float>(1.f, 6.f, 0.5f), 2.5f)
+              })
 {
-    state = std::make_unique<juce::AudioProcessorValueTreeState>(*this, nullptr);
-
-    using Parameter = juce::AudioProcessorValueTreeState::Parameter;
-
-    state->createAndAddParameter(std::make_unique<Parameter>("drive", "Drive", "Drive", juce::NormalisableRange<float>(1.f, 24.f, 0.001f), 1.f, nullptr, nullptr));
-    state->createAndAddParameter(std::make_unique<Parameter>("pre volume", "Pre Volume", "Pre Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f, nullptr, nullptr));
-    state->createAndAddParameter(std::make_unique<Parameter>("post volume", "Post Volume", "Post Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f, nullptr, nullptr));
-    state->createAndAddParameter(std::make_unique<Parameter>("low cut", "Low Cut", "Low Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20.f, nullptr, nullptr));
-    state->createAndAddParameter(std::make_unique<Parameter>("high cut", "High Cut", "High Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20000.f, nullptr, nullptr));
-    state->createAndAddParameter(std::make_unique<Parameter>("character", "Character", "Character", juce::NormalisableRange<float>(1.f, 6.f, 0.5f), 2.5f, nullptr, nullptr));
-
-//    state->state = juce::ValueTree("drive");
-//    state->state = juce::ValueTree("pre volume");
-//    state->state = juce::ValueTree("post volume");
-//    state->state = juce::ValueTree("low cut");
-//    state->state = juce::ValueTree("high cut");
-//    state->state = juce::ValueTree("character");
 }
 
 DistortAudioProcessor::~DistortAudioProcessor()
@@ -121,7 +116,7 @@ void DistortAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     leftChain.prepare(spec);
     rightChain.prepare(spec);
 
-    auto chainSettings = getChainSettings(*state);
+    auto chainSettings = getChainSettings(state);
     auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, sampleRate, 4);
     auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCut, sampleRate, 4);
 
@@ -185,7 +180,7 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    auto chainSettings = getChainSettings(*state);
+    auto chainSettings = getChainSettings(state);
 
     auto lowCutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCut, getSampleRate(), 4);
     auto highCutCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(chainSettings.highCut, getSampleRate(), 4);
@@ -219,10 +214,10 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    float drive = *state->getRawParameterValue("drive");
-    float preVol = *state->getRawParameterValue("pre volume");
-    float postVol = *state->getRawParameterValue("post volume");
-    float character = *state->getRawParameterValue("character");
+    *drive = state.getRawParameterValue("drive")->load();
+    *preVol = state.getRawParameterValue("pre volume")->load();
+    *postVol = state.getRawParameterValue("post volume")->load();
+    *character = state.getRawParameterValue("character")->load();
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -231,11 +226,11 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         // ..do something to the data...
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            *channelData *= preVol;
+            *channelData *= *preVol;
 
-            *channelData =  ((*channelData * drive) / pow((1 + pow(abs(*channelData * drive), character)), 1 / character));
+            *channelData =  ((*channelData * *drive) / pow((1 + pow(abs(*channelData * *drive), *character)), 1 / *character));
                 
-            *channelData *= postVol;
+            *channelData *= *postVol;
 
             channelData++;
         }
@@ -244,7 +239,7 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 
 juce::AudioProcessorValueTreeState& DistortAudioProcessor::getState()
 {
-    return *state;
+    return state;
 }
 
 //==============================================================================
@@ -264,8 +259,8 @@ void DistortAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    juce::MemoryOutputStream stream(destData, false);
-    state->state.writeToStream(stream);
+    juce::MemoryOutputStream stream(destData, true);
+    state.state.writeToStream(stream);
 }
 
 void DistortAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
@@ -276,7 +271,7 @@ void DistortAudioProcessor::setStateInformation (const void* data, int sizeInByt
 
     if (tree.isValid())
     {
-        state->state = tree;
+        state.replaceState(tree);
     }
 }
 
