@@ -66,15 +66,16 @@ public:
   void setStateInformation(const void *data, int sizeInBytes) override;
 
   juce::AudioProcessorValueTreeState& getState();
-  juce::AudioProcessorValueTreeState state;
 
 private:
-  std::unique_ptr<juce::AudioParameterFloat> drive;
-  std::unique_ptr<juce::AudioParameterFloat> preVol;
-  std::unique_ptr<juce::AudioParameterFloat> postVol;
-  std::unique_ptr<juce::AudioParameterFloat> lowCut;
-  std::unique_ptr<juce::AudioParameterFloat> highCut; 
-  std::unique_ptr<juce::AudioParameterFloat> character;
+  juce::AudioProcessorValueTreeState state;
+  
+  float drive;
+  float preVol;
+  float postVol;
+  float lowCut;
+  float highCut; 
+  float character;
 
   using Filter = juce::dsp::IIR::Filter<float>;
   using CutFilter = juce::dsp::ProcessorChain<Filter, Filter>;

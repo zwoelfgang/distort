@@ -214,10 +214,10 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    *drive = state.getRawParameterValue("drive")->load();
-    *preVol = state.getRawParameterValue("pre volume")->load();
-    *postVol = state.getRawParameterValue("post volume")->load();
-    *character = state.getRawParameterValue("character")->load();
+    drive = *state.getRawParameterValue("drive");
+    preVol = *state.getRawParameterValue("pre volume");
+    postVol = *state.getRawParameterValue("post volume");
+    character = *state.getRawParameterValue("character");
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -226,11 +226,11 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         // ..do something to the data...
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            *channelData *= *preVol;
+            *channelData *= preVol;
 
-            *channelData =  ((*channelData * *drive) / pow((1 + pow(abs(*channelData * *drive), *character)), 1 / *character));
+            *channelData =  ((*channelData * drive) / pow((1 + pow(abs(*channelData * drive), character)), 1 / character));
                 
-            *channelData *= *postVol;
+            *channelData *= postVol;
 
             channelData++;
         }
