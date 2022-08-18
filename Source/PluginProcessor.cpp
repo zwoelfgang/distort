@@ -14,17 +14,7 @@
 
 
 DistortAudioProcessor::DistortAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations
-      : AudioProcessor (BusesProperties()
-                      #if ! JucePlugin_IsMidiEffect
-                       #if ! JucePlugin_IsSynth
-                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                       #endif
-                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                      #endif
-                        ),
-#endif
-state (*this, nullptr, "PARAMETERS",
+    : state (*this, nullptr, "PARAMETERS",
               { 
                 std::make_unique<juce::AudioParameterFloat> ("drive", "Drive", juce::NormalisableRange<float>(1.f, 24.f, 0.001f), 1.f),
                 std::make_unique<juce::AudioParameterFloat> ("pre volume", "Pre Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f),
