@@ -16,9 +16,9 @@
 DistortAudioProcessor::DistortAudioProcessor()
     : state (*this, nullptr, "PARAMETERS",
               { 
-                std::make_unique<juce::AudioParameterFloat> ("drive", "Drive", juce::NormalisableRange<float>(1.f, 2.4f, 0.001f), 1.f),
-                std::make_unique<juce::AudioParameterFloat> ("pre volume", "Pre Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f),
-                std::make_unique<juce::AudioParameterFloat> ("post volume", "Post Volume", juce::NormalisableRange<float>(1.f, 6.f, 0.001f), 1.f),
+                std::make_unique<juce::AudioParameterFloat> ("drive", "Drive", juce::NormalisableRange<float>(1.f, 11.f, 0.001f), 1.f),
+                std::make_unique<juce::AudioParameterFloat> ("pre volume", "Pre Volume", juce::NormalisableRange<float>(1.f, 3.f, 0.001f), 1.f),
+                std::make_unique<juce::AudioParameterFloat> ("post volume", "Post Volume", juce::NormalisableRange<float>(1.f, 3.f, 0.001f), 1.f),
                 std::make_unique<juce::AudioParameterFloat> ("low cut", "Low Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20.f),
                 std::make_unique<juce::AudioParameterFloat> ("high cut", "High Cut", juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.2f, false), 20000.f),
                 std::make_unique<juce::AudioParameterFloat> ("character", "Character", juce::NormalisableRange<float>(1.f, 6.f, 0.5f), 2.5f)
