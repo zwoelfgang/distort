@@ -66,10 +66,9 @@ public:
   void setStateInformation(const void *data, int sizeInBytes) override;
 
   juce::AudioProcessorValueTreeState& getState();
-
-private:
   juce::AudioProcessorValueTreeState state;
 
+private:
   std::unique_ptr<juce::AudioParameterFloat> drive;
   std::unique_ptr<juce::AudioParameterFloat> preVol;
   std::unique_ptr<juce::AudioParameterFloat> postVol;

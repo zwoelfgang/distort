@@ -28,9 +28,9 @@ private:
     juce::Slider driveKnob;
     juce::Slider preVolumeKnob;
     juce::Slider postVolumeKnob;
-    juce::Slider lowCut;
-    juce::Slider highCut;
-    juce::Slider character;
+    juce::Slider lowCutKnob;
+    juce::Slider highCutKnob;
+    juce::Slider characterKnob;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> preVolumeAttachment;

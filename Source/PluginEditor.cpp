@@ -30,27 +30,27 @@ DistortAudioProcessorEditor::DistortAudioProcessorEditor (DistortAudioProcessor&
     postVolumeKnob.setSliderStyle (juce::Slider::LinearVertical);
     postVolumeKnob.setTextBoxStyle (juce::Slider::NoTextBox, false, 100, 100);
 
-    addAndMakeVisible(&lowCut);
-    lowCut.setTextValueSuffix("Low Cut");
-    lowCut.setSliderStyle (juce::Slider::RotaryVerticalDrag);
-    lowCut.setTextBoxStyle (juce::Slider::NoTextBox, false, 100, 100);
+    addAndMakeVisible(&lowCutKnob);
+    lowCutKnob.setTextValueSuffix("Low Cut");
+    lowCutKnob.setSliderStyle (juce::Slider::RotaryVerticalDrag);
+    lowCutKnob.setTextBoxStyle (juce::Slider::NoTextBox, false, 100, 100);
 
-    addAndMakeVisible(&highCut);
-    highCut.setTextValueSuffix("High Cut");
-    highCut.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    highCut.setTextBoxStyle(juce::Slider::NoTextBox, false, 100, 100);
+    addAndMakeVisible(&highCutKnob);
+    highCutKnob.setTextValueSuffix("High Cut");
+    highCutKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    highCutKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 100, 100);
 
-    addAndMakeVisible(&character);
-    character.setTextValueSuffix("Character");
-    character.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    character.setTextBoxStyle(juce::Slider::NoTextBox, false, 100, 100);
+    addAndMakeVisible(&characterKnob);
+    characterKnob.setTextValueSuffix("Character");
+    characterKnob.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    characterKnob.setTextBoxStyle(juce::Slider::NoTextBox, false, 100, 100);
 
     driveAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "drive", driveKnob));
     preVolumeAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "pre volume", preVolumeKnob));
     postVolumeAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "post volume", postVolumeKnob));
-    lowCutAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "low cut", lowCut));
-    highCutAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "high cut", highCut));
-    characterAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "character", character));
+    lowCutAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "low cut", lowCutKnob));
+    highCutAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "high cut", highCutKnob));
+    characterAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(p.getState(), "character", characterKnob));
 
     setSize (600, 400);
 }
@@ -69,9 +69,9 @@ void DistortAudioProcessorEditor::paint (juce::Graphics& g)
     driveKnob.setColour(0xff000000, juce::Colours::black);
     preVolumeKnob.setColour(0xff000000, juce::Colours::black);
     postVolumeKnob.setColour(0xff000000, juce::Colours::black);
-    lowCut.setColour(0xff000000, juce::Colours::black);
-    highCut.setColour(0xff000000, juce::Colours::black);
-    character.setColour(0xff000000, juce::Colours::black);
+    lowCutKnob.setColour(0xff000000, juce::Colours::black);
+    highCutKnob.setColour(0xff000000, juce::Colours::black);
+    characterKnob.setColour(0xff000000, juce::Colours::black);
 
     g.setFont(juce::Font(juce::Font::getDefaultMonospacedFontName(), 20.0f, juce::Font::bold));
     g.drawText("Drive", ((getWidth() / 2) - 200 / 2), ((getHeight() / 2) - 150 / 2), 200, 200, juce::Justification::centred);
@@ -90,7 +90,7 @@ void DistortAudioProcessorEditor::resized()
     driveKnob.setBounds(((getWidth() / 2) - 150 / 2), ((getHeight() / 2) - 250 / 2), 150, 150);
     preVolumeKnob.setBounds(((getWidth() / 2) - 420 / 2), ((getHeight() / 2) - 250 / 2), 20, 250);
     postVolumeKnob.setBounds(((getWidth() / 2) + 380 / 2), ((getHeight() / 2) - 250 / 2), 20, 250);
-    lowCut.setBounds(((getWidth() / 2) - 330 / 2), ((getHeight() / 2) + 100 / 2), 80, 80);
-    highCut.setBounds(((getWidth() / 2) + 170 / 2), ((getHeight() / 2) + 100 / 2), 80, 80);
-    character.setBounds(((getWidth() / 2) - 70 / 2), ((getHeight() / 2) + 170 / 2), 70, 70);
+    lowCutKnob.setBounds(((getWidth() / 2) - 330 / 2), ((getHeight() / 2) + 100 / 2), 80, 80);
+    highCutKnob.setBounds(((getWidth() / 2) + 170 / 2), ((getHeight() / 2) + 100 / 2), 80, 80);
+    characterKnob.setBounds(((getWidth() / 2) - 70 / 2), ((getHeight() / 2) + 170 / 2), 70, 70);
 }
