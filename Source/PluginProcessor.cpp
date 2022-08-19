@@ -216,11 +216,11 @@ void DistortAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         // ..do something to the data...
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            *channelData += preVol;
+            *channelData += (*channelData * preVol);
 
             *channelData =  ((*channelData * drive) / pow((1 + pow(abs(*channelData * drive), character)), 1 / character));
                 
-            *channelData += postVol;
+            *channelData += (*channelData * postVol);
 
             channelData++;
         }
